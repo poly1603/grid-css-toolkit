@@ -1,0 +1,1041 @@
+/**
+ * Grid CSS Toolkit - 样式
+ *
+ * 编辑器 + 预览器的完整样式
+ * 可通过 CSS 变量自定义主题
+ */
+
+/* ─── CSS 变量 ────────────────────────────────────────────── */
+
+:root {
+  --gct-primary: #4f8ff7;
+  --gct-primary-hover: #3a7be0;
+  --gct-primary-light: rgba(79, 143, 247, 0.1);
+  --gct-danger: #ef4444;
+  --gct-danger-hover: #dc2626;
+  --gct-success: #22c55e;
+  --gct-warning: #f59e0b;
+
+  --gct-bg: #ffffff;
+  --gct-bg-secondary: #f8fafc;
+  --gct-bg-tertiary: #f1f5f9;
+  --gct-bg-canvas: #e2e8f0;
+  --gct-border: #e2e8f0;
+  --gct-border-hover: #cbd5e1;
+  --gct-text: #1e293b;
+  --gct-text-secondary: #64748b;
+  --gct-text-muted: #94a3b8;
+  --gct-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --gct-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --gct-radius: 6px;
+  --gct-radius-lg: 10px;
+
+  --gct-toolbar-height: 48px;
+  --gct-panel-width: 280px;
+  --gct-widget-bg: #ffffff;
+  --gct-widget-border: var(--gct-border);
+  --gct-widget-selected: var(--gct-primary);
+  --gct-grid-line: var(--gct-border);
+  --gct-handle-size: 20px;
+}
+
+/* ─── 暗色主题 ───────────────────────────────────────────── */
+
+.gct-editor--dark {
+  --gct-bg: #0f172a;
+  --gct-bg-secondary: #1e293b;
+  --gct-bg-tertiary: #334155;
+  --gct-bg-canvas: #1e293b;
+  --gct-border: #334155;
+  --gct-border-hover: #475569;
+  --gct-text: #f1f5f9;
+  --gct-text-secondary: #94a3b8;
+  --gct-text-muted: #64748b;
+  --gct-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --gct-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --gct-widget-bg: #1e293b;
+}
+
+/* ─── 编辑器布局 ─────────────────────────────────────────── */
+
+.gct-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 400px;
+  background: var(--gct-bg);
+  color: var(--gct-text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  overflow: hidden;
+  border: 1px solid var(--gct-border);
+  border-radius: var(--gct-radius-lg);
+}
+
+.gct-editor__body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.gct-editor__canvas {
+  flex: 1;
+  overflow: auto;
+  background: var(--gct-bg-canvas);
+  position: relative;
+}
+
+.gct-editor__panel-slot {
+  width: var(--gct-panel-width);
+  min-width: var(--gct-panel-width);
+  border-left: 1px solid var(--gct-border);
+  background: var(--gct-bg);
+  overflow-y: auto;
+}
+
+/* ─── 工具栏 ─────────────────────────────────────────────── */
+
+.gct-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--gct-toolbar-height);
+  padding: 0 12px;
+  background: var(--gct-bg);
+  border-bottom: 1px solid var(--gct-border);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.gct-toolbar__group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gct-toolbar__separator {
+  width: 1px;
+  height: 24px;
+  background: var(--gct-border);
+  margin: 0 4px;
+}
+
+.gct-toolbar__spacer {
+  flex: 1;
+}
+
+.gct-toolbar__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border: 1px solid var(--gct-border);
+  border-radius: var(--gct-radius);
+  background: var(--gct-bg);
+  color: var(--gct-text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.gct-toolbar__btn:hover {
+  background: var(--gct-bg-tertiary);
+  border-color: var(--gct-border-hover);
+}
+
+.gct-toolbar__btn:active {
+  transform: scale(0.97);
+}
+
+.gct-toolbar__btn--primary {
+  background: var(--gct-primary);
+  color: white;
+  border-color: var(--gct-primary);
+}
+
+.gct-toolbar__btn--primary:hover {
+  background: var(--gct-primary-hover);
+}
+
+.gct-toolbar__btn--save {
+  background: var(--gct-success);
+  color: white;
+  border-color: var(--gct-success);
+}
+
+.gct-toolbar__btn--save:hover {
+  opacity: 0.9;
+}
+
+.gct-toolbar__select {
+  padding: 5px 8px;
+  border: 1px solid var(--gct-border);
+  border-radius: var(--gct-radius);
+  background: var(--gct-bg);
+  color: var(--gct-text);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.gct-toolbar__label {
+  font-size: 12px;
+  color: var(--gct-text-secondary);
+  margin-right: 4px;
+}
+
+/* ─── Grid 容器 ──────────────────────────────────────────── */
+
+.gct-grid-container {
+  position: relative;
+  min-height: 100%;
+}
+
+.gct-grid-stack {
+  min-height: calc(100vh - var(--gct-toolbar-height));
+}
+
+/* GridStack 覆盖样式 */
+.grid-stack {
+  background: transparent;
+}
+
+.grid-stack-item-content {
+  background: var(--gct-widget-bg);
+  border: 1px solid var(--gct-widget-border);
+  border-radius: var(--gct-radius);
+  box-shadow: var(--gct-shadow);
+  overflow: hidden;
+}
+
+/* ─── Widget ─────────────────────────────────────────────── */
+
+.gct-widget {
+  position: relative;
+}
+
+.gct-widget .grid-stack-item-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.gct-widget--selected .grid-stack-item-content {
+  border-color: var(--gct-widget-selected);
+  box-shadow: 0 0 0 2px var(--gct-primary-light), var(--gct-shadow-lg);
+}
+
+.gct-widget__drag-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  cursor: move;
+  background: linear-gradient(to bottom, var(--gct-bg-secondary), transparent);
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 2;
+}
+
+.gct-widget:hover .gct-widget__drag-handle {
+  opacity: 1;
+}
+
+.gct-widget__drag-handle::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--gct-text-muted);
+}
+
+.gct-widget__content {
+  flex: 1;
+  padding: 8px 10px;
+  overflow: auto;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--gct-text);
+  word-break: break-word;
+}
+
+.gct-widget__content[contenteditable='true'] {
+  outline: none;
+  background: var(--gct-primary-light);
+  cursor: text;
+}
+
+.gct-widget__resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: var(--gct-handle-size);
+  height: var(--gct-handle-size);
+  cursor: se-resize;
+  z-index: 2;
+}
+
+.gct-widget__resize-handle::before {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid var(--gct-text-muted);
+  border-bottom: 2px solid var(--gct-text-muted);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.gct-widget:hover .gct-widget__resize-handle::before {
+  opacity: 1;
+}
+
+.gct-widget__actions {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 3;
+}
+
+.gct-widget:hover .gct-widget__actions {
+  opacity: 1;
+}
+
+.gct-widget__btn {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 4px;
+  background: var(--gct-bg);
+  color: var(--gct-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: var(--gct-shadow);
+  transition: all 0.15s;
+}
+
+.gct-widget__btn:hover {
+  background: var(--gct-bg-tertiary);
+  transform: scale(1.1);
+}
+
+/* ─── 属性面板 ───────────────────────────────────────────── */
+
+.gct-property-panel {
+  padding: 12px;
+}
+
+.gct-property-panel__empty {
+  text-align: center;
+  color: var(--gct-text-muted);
+  padding: 40px 20px;
+  font-size: 13px;
+}
+
+.gct-property-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--gct-border);
+}
+
+.gct-property-panel__header h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.gct-property-panel__actions {
+  display: flex;
+  gap: 4px;
+}
+
+.gct-btn-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gct-border);
+  border-radius: var(--gct-radius);
+  background: var(--gct-bg);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.gct-btn-icon:hover {
+  background: var(--gct-bg-tertiary);
+}
+
+.gct-btn-icon--danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--gct-danger);
+}
+
+.gct-property-panel__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gct-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gct-field label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gct-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.gct-field-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+  gap: 6px;
+}
+
+.gct-input {
+  padding: 6px 8px;
+  border: 1px solid var(--gct-border);
+  border-radius: var(--gct-radius);
+  background: var(--gct-bg);
+  color: var(--gct-text);
+  font-size: 13px;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+
+.gct-input:focus {
+  outline: none;
+  border-color: var(--gct-primary);
+  box-shadow: 0 0 0 2px var(--gct-primary-light);
+}
+
+.gct-input--disabled {
+  background: var(--gct-bg-tertiary);
+  color: var(--gct-text-muted);
+  cursor: not-allowed;
+}
+
+.gct-textarea {
+  resize: vertical;
+  min-height: 50px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 12px;
+}
+
+/* ─── 预览模式 ───────────────────────────────────────────── */
+
+.gct-editor--preview .gct-toolbar,
+.gct-editor--preview .gct-editor__panel-slot {
+  display: none;
+}
+
+.gct-editor--preview .gct-editor__canvas {
+  padding: 0;
+}
+
+/* ─── 网格线 ─────────────────────────────────────────────── */
+
+.gct-grid-cell {
+  border: 1px dashed var(--gct-grid-line);
+  border-radius: 2px;
+  background: transparent;
+}
+
+/* ─── 响应式 ─────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .gct-editor__panel-slot {
+    display: none;
+  }
+
+  .gct-toolbar {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 8px;
+    gap: 4px;
+  }
+
+  .gct-toolbar__separator {
+    display: none;
+  }
+}
+
+/* ─── GridStack 主题覆盖 ─────────────────────────────────── */
+
+.grid-stack > .grid-stack-item > .grid-stack-item-content {
+  overflow: hidden;
+}
+
+.grid-stack-item.ui-draggable-dragging {
+  opacity: 0.8;
+}
+
+.grid-stack-item.grid-stack-placeholder > .placeholder-content {
+  border: 2px dashed var(--gct-primary);
+  border-radius: var(--gct-radius);
+  background: var(--gct-primary-light);
+}
+
+/* ─── Lucide 图标样式 ───────────────────────────────────── */
+
+.gct-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.gct-toolbar__btn .gct-icon,
+.gct-toolbar__btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.gct-widget__btn .gct-icon,
+.gct-widget__btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+.gct-lib__item-icon .gct-icon,
+.gct-lib__item-icon svg {
+  width: 16px;
+  height: 16px;
+  color: var(--gct-primary);
+}
+
+.gct-ctx__icon .gct-icon,
+.gct-ctx__icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.gct-ctx__arrow .gct-icon,
+.gct-ctx__arrow svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* ─── 动画 ──────────────────────────────────────────────── */
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+}
+
+/* ─── 动画 ───────────────────────────────────────────────── */
+
+@keyframes gct-fade-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.grid-stack-item.gct-widget {
+  animation: gct-fade-in 0.2s ease;
+}
+
+/* ─── 滚动条 ─────────────────────────────────────────────── */
+
+.gct-editor ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.gct-editor ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.gct-editor ::-webkit-scrollbar-thumb {
+  background: var(--gct-border);
+  border-radius: 3px;
+}
+
+.gct-editor ::-webkit-scrollbar-thumb:hover {
+  background: var(--gct-border-hover);
+}
+
+/* ─── 编辑器布局 - 库面板 ────────────────────────────────── */
+
+.gct-editor__lib-slot {
+  width: 220px;
+  min-width: 220px;
+  border-right: 1px solid var(--gct-border);
+  background: var(--gct-bg);
+  overflow-y: auto;
+}
+
+/* ─── Widget 库 ──────────────────────────────────────────── */
+
+.gct-widget-library {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.gct-lib--collapsed .gct-lib__body {
+  display: none;
+}
+
+.gct-lib__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--gct-border);
+}
+
+.gct-lib__title {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.gct-lib__toggle {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--gct-text-muted);
+  border-radius: 4px;
+}
+
+.gct-lib__toggle:hover {
+  background: var(--gct-bg-tertiary);
+}
+
+.gct-lib__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.gct-lib__search {
+  padding: 8px;
+}
+
+.gct-lib__search-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--gct-border);
+  border-radius: var(--gct-radius);
+  background: var(--gct-bg);
+  color: var(--gct-text);
+  font-size: 12px;
+}
+
+.gct-lib__search-input:focus {
+  outline: none;
+  border-color: var(--gct-primary);
+}
+
+.gct-lib__categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0 8px 8px;
+}
+
+.gct-lib__cat {
+  padding: 3px 8px;
+  border: 1px solid var(--gct-border);
+  border-radius: 12px;
+  background: var(--gct-bg);
+  color: var(--gct-text-secondary);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.gct-lib__cat:hover {
+  border-color: var(--gct-primary);
+  color: var(--gct-primary);
+}
+
+.gct-lib__cat--active {
+  background: var(--gct-primary);
+  color: white;
+  border-color: var(--gct-primary);
+}
+
+.gct-lib__list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 8px;
+}
+
+.gct-lib__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--gct-radius);
+  cursor: grab;
+  transition: all 0.15s;
+  font-size: 12px;
+}
+
+.gct-lib__item:hover {
+  background: var(--gct-bg-tertiary);
+}
+
+.gct-lib__item:active {
+  cursor: grabbing;
+}
+
+.gct-lib__item--dragging {
+  opacity: 0.5;
+}
+
+.gct-lib__item-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+.gct-lib__item-name {
+  flex: 1;
+  color: var(--gct-text);
+}
+
+.gct-lib__item-size {
+  color: var(--gct-text-muted);
+  font-size: 10px;
+}
+
+.gct-lib__item-del {
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: none;
+  color: var(--gct-text-muted);
+  cursor: pointer;
+  font-size: 10px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gct-lib__item-del:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--gct-danger);
+}
+
+.gct-lib__footer {
+  padding: 8px;
+  border-top: 1px solid var(--gct-border);
+}
+
+.gct-lib__save-tpl {
+  width: 100%;
+  padding: 6px;
+  border: 1px dashed var(--gct-border);
+  border-radius: var(--gct-radius);
+  background: var(--gct-bg);
+  color: var(--gct-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.gct-lib__save-tpl:hover {
+  border-color: var(--gct-primary);
+  color: var(--gct-primary);
+}
+
+/* ─── 右键菜单 ───────────────────────────────────────────── */
+
+.gct-context-menu {
+  position: fixed;
+  background: var(--gct-bg);
+  border: 1px solid var(--gct-border);
+  border-radius: var(--gct-radius);
+  box-shadow: var(--gct-shadow-lg);
+  padding: 4px;
+  z-index: 100000;
+  min-width: 180px;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: all 0.12s ease;
+}
+
+.gct-context-menu--visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.gct-ctx__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--gct-text);
+  position: relative;
+}
+
+.gct-ctx__item:hover {
+  background: var(--gct-primary-light);
+}
+
+.gct-ctx__item--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.gct-ctx__icon {
+  width: 18px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.gct-ctx__label {
+  flex: 1;
+}
+
+.gct-ctx__shortcut {
+  color: var(--gct-text-muted);
+  font-size: 11px;
+}
+
+.gct-ctx__arrow {
+  color: var(--gct-text-muted);
+  font-size: 11px;
+}
+
+.gct-ctx__divider {
+  height: 1px;
+  background: var(--gct-border);
+  margin: 4px 8px;
+}
+
+.gct-ctx__submenu {
+  display: none;
+  position: absolute;
+  left: 100%;
+  top: -4px;
+  background: var(--gct-bg);
+  border: 1px solid var(--gct-border);
+  border-radius: var(--gct-radius);
+  box-shadow: var(--gct-shadow-lg);
+  padding: 4px;
+  min-width: 150px;
+}
+
+.gct-ctx__item--has-children:hover .gct-ctx__submenu {
+  display: block;
+}
+
+/* ─── 缩放控制 ───────────────────────────────────────────── */
+
+.gct-zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.gct-zoom__btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gct-border);
+  border-radius: var(--gct-radius);
+  background: var(--gct-bg);
+  color: var(--gct-text);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.gct-zoom__btn:hover {
+  background: var(--gct-bg-tertiary);
+}
+
+.gct-zoom__label {
+  font-size: 12px;
+  color: var(--gct-text-secondary);
+  min-width: 40px;
+  text-align: center;
+}
+
+/* ─── 设备预览框 ─────────────────────────────────────────── */
+
+.gct-device-frame--active {
+  margin: 20px auto !important;
+  transition: max-width 0.3s ease;
+}
+
+.gct-device-selector {
+  margin-left: 8px;
+}
+
+.gct-device-select {
+  padding: 4px 8px;
+  border: 1px solid var(--gct-border);
+  border-radius: var(--gct-radius);
+  background: var(--gct-bg);
+  color: var(--gct-text);
+  font-size: 12px;
+}
+
+/* ─── 多选 ───────────────────────────────────────────────── */
+
+.gct-widget--multi-selected .grid-stack-item-content {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2), var(--gct-shadow-lg);
+}
+
+/* ─── 快照面板 ───────────────────────────────────────────── */
+
+.gct-snapshots {
+  padding: 12px;
+}
+
+.gct-snapshots__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.gct-snapshots__header h3 {
+  font-size: 14px;
+  margin: 0;
+}
+
+.gct-snapshots__empty {
+  text-align: center;
+  color: var(--gct-text-muted);
+  padding: 20px;
+  font-size: 13px;
+}
+
+.gct-snapshot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  border: 1px solid var(--gct-border);
+  border-radius: var(--gct-radius);
+  margin-bottom: 6px;
+}
+
+.gct-snapshot__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gct-snapshot__name {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.gct-snapshot__time {
+  font-size: 11px;
+  color: var(--gct-text-muted);
+}
+
+.gct-snapshot__meta {
+  font-size: 10px;
+  color: var(--gct-text-muted);
+}
+
+.gct-snapshot__actions {
+  display: flex;
+  gap: 4px;
+}
+
+.gct-btn-sm {
+  padding: 4px 10px;
+  border: 1px solid var(--gct-border);
+  border-radius: var(--gct-radius);
+  background: var(--gct-bg);
+  color: var(--gct-text);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.gct-btn-sm:hover {
+  background: var(--gct-bg-tertiary);
+}
+
+.gct-btn-xs {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gct-border);
+  border-radius: 4px;
+  background: var(--gct-bg);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.gct-btn-xs:hover {
+  background: var(--gct-bg-tertiary);
+}
+
+.gct-btn-xs--danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--gct-danger);
+}
+
+/* ─── 响应式 - 库面板隐藏 ────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  .gct-editor__lib-slot {
+    display: none;
+  }
+}

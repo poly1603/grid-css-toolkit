@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grid CSS Toolkit - Playground</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+    }
+
+    /* Header */
+    .demo-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #f1f5f9;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    .demo-header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .demo-header h1 svg {
+      color: #4f8ff7;
+    }
+    .demo-header__actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Buttons */
+    .demo-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #1e293b;
+      color: #e2e8f0;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .demo-btn:hover {
+      background: #334155;
+      border-color: #475569;
+      transform: translateY(-1px);
+    }
+    .demo-btn:active {
+      transform: translateY(0);
+    }
+    .demo-btn--primary {
+      background: #4f8ff7;
+      border-color: #4f8ff7;
+      color: white;
+    }
+    .demo-btn--primary:hover {
+      background: #3a7be0;
+      border-color: #3a7be0;
+    }
+    .demo-btn--danger {
+      background: transparent;
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+    .demo-btn--danger:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* Tabs */
+    .demo-tabs {
+      display: flex;
+      gap: 0;
+      background: #ffffff;
+      padding: 0 24px;
+      border-bottom: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    .demo-tab {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748b;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .demo-tab:hover {
+      color: #1e293b;
+    }
+    .demo-tab--active {
+      color: #4f8ff7;
+      border-bottom-color: #4f8ff7;
+    }
+    .demo-tab svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Content */
+    .demo-content {
+      height: calc(100vh - 110px);
+    }
+    .demo-panel {
+      display: none;
+      height: 100%;
+    }
+    .demo-panel--active {
+      display: block;
+    }
+
+    /* Editor */
+    #editor-container {
+      height: 100%;
+    }
+
+    /* Preview */
+    #preview-container {
+      height: 100%;
+      padding: 24px;
+      overflow: auto;
+      background: #f1f5f9;
+    }
+
+    /* Code */
+    #code-container {
+      height: 100%;
+      overflow: auto;
+      padding: 24px;
+      background: #f8fafc;
+    }
+    #code-container pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 20px;
+      border-radius: 12px;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    #code-container .code-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    #code-container .code-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      font-size: 13px;
+      font-weight: 500;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    #code-container .code-tab:hover {
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+    #code-container .code-tab--active {
+      background: #4f8ff7;
+      color: white;
+      border-color: #4f8ff7;
+    }
+
+    /* Icon styles */
+    .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+    }
+    .icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Status bar */
+    .demo-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 24px;
+      background: #1e293b;
+      color: #94a3b8;
+      font-size: 12px;
+      border-top: 1px solid #334155;
+    }
+    .demo-status__info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .demo-status__item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-header">
+    <h1>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/>
+      </svg>
+      Grid CSS Toolkit
+    </h1>
+    <div class="demo-header__actions">
+      <button class="demo-btn" id="btn-template-dashboard">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+        仪表盘
+      </button>
+      <button class="demo-btn" id="btn-template-sidebar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><line x1="9" x2="9" y1="3" y2="21"/></svg>
+        侧边栏
+      </button>
+      <button class="demo-btn" id="btn-template-gallery">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 22H4a2 2 0 0 1-2-2V6"/><path d="m22 13-1.296-1.296a2 2 0 0 0-2.828 0L11 18"/><circle cx="12" cy="8" r="2"/><rect width="16" height="16" x="6" y="2" rx="2"/></svg>
+        画廊
+      </button>
+      <button class="demo-btn demo-btn--danger" id="btn-clear">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        清空
+      </button>
+    </div>
+  </div>
+
+  <div class="demo-tabs">
+    <div class="demo-tab demo-tab--active" data-tab="editor">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      编辑器
+    </div>
+    <div class="demo-tab" data-tab="preview">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+      预览
+    </div>
+    <div class="demo-tab" data-tab="code">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      代码
+    </div>
+  </div>
+
+  <div class="demo-content">
+    <div class="demo-panel demo-panel--active" data-panel="editor">
+      <div id="editor-container"></div>
+    </div>
+    <div class="demo-panel" data-panel="preview">
+      <div id="preview-container"></div>
+    </div>
+    <div class="demo-panel" data-panel="code">
+      <div id="code-container">
+        <div class="code-tabs">
+          <button class="code-tab code-tab--active" data-code="css">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            CSS
+          </button>
+          <button class="code-tab" data-code="html">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            HTML
+          </button>
+          <button class="code-tab" data-code="json">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></svg>
+            JSON
+          </button>
+          <button class="code-tab" data-code="vue">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            Vue
+          </button>
+          <button class="code-tab" data-code="react">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            React
+          </button>
+        </div>
+        <pre id="code-output"></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-status">
+    <div class="demo-status__info">
+      <span class="demo-status__item">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+        12 列
+      </span>
+      <span class="demo-status__item">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        自动保存
+      </span>
+      <span class="demo-status__item" id="widget-count">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+        0 个 Widget
+      </span>
+    </div>
+    <div>
+      <span>Grid CSS Toolkit v1.0.0</span>
+    </div>
+  </div>
+
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>
