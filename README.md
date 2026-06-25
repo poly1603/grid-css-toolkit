@@ -7,14 +7,16 @@ GridStack.js - CSS Grid 转换工具包：编辑态拖拽排版，预览态纯 C
 - 基于 GridStack.js 的可视化拖拽编辑器
 - 纯 CSS Grid 输出，零依赖预览
 - 支持响应式断点配置
-- 多种导出格式：CSS、HTML、JSON、Vue、React、Tailwind
+- 多种导出格式：CSS、HTML、JSON、Vue、React、Tailwind、Angular、Svelte
 - 完整的撤销/重做历史记录
 - 右键上下文菜单
 - 多选与批量操作
 - 对齐辅助线与智能吸附
 - 缩放控制与设备预览
 - 布局快照与版本管理
-- Lucide 图标库支持
+- Widget 库面板（预设 + 自定义模板）
+- 可配置工具栏和属性面板的显示/隐藏
+- Lucide 图标库支持（内置 SVG，无外部依赖）
 
 ## 安装
 
@@ -35,8 +37,8 @@ const editor = new Editor({
   container: '#editor',
   config: templates.dashboard(),
   theme: 'dark',
-  showToolbar: true,
-  showPropertyPanel: true,
+  showToolbar: true,       // 显示工具栏 + Widget 库
+  showPropertyPanel: true, // 显示属性面板
 });
 
 // 创建预览
@@ -50,7 +52,7 @@ const preview = new Preview({
 ## 导出功能
 
 ```typescript
-import { toCSS, toHTML, toJSON, toVue, toReact } from 'grid-css-toolkit';
+import { toCSS, toHTML, toJSON, toVue, toReact, toTailwind, toAngular, toSvelte } from 'grid-css-toolkit';
 
 const config = editor.getConfig();
 
@@ -65,6 +67,19 @@ const vue = toVue(config);
 
 // 导出 React 组件
 const react = toReact(config);
+
+// 导出 Tailwind 类名
+const tailwind = toTailwind(config);
+
+// 导出 Angular 组件
+const angular = toAngular(config);
+
+// 导出 Svelte 组件
+const svelte = toSvelte(config);
+
+// 统一导出接口
+import { exportLayout } from 'grid-css-toolkit';
+const output = exportLayout(config, { format: 'vue' });
 ```
 
 ## 响应式配置
@@ -105,8 +120,8 @@ new Editor({
   container: HTMLElement | string,
   config?: Partial<GridConfig>,
   theme?: 'light' | 'dark',
-  showToolbar?: boolean,
-  showPropertyPanel?: boolean,
+  showToolbar?: boolean,       // 默认 true，设为 false 隐藏工具栏和 Widget 库
+  showPropertyPanel?: boolean, // 默认 true，设为 false 隐藏属性面板
   onSave?: (config: GridConfig) => void,
   onChange?: (config: GridConfig) => void,
 });
@@ -139,6 +154,7 @@ new Preview({
 | `toTailwind(config)` | 导出 Tailwind 类名 |
 | `toAngular(config)` | 导出 Angular 组件 |
 | `toSvelte(config)` | 导出 Svelte 组件 |
+| `exportLayout(config, options)` | 统一导出接口 |
 
 ## 开发
 

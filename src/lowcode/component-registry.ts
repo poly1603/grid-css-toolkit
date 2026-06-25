@@ -38,8 +38,8 @@ export interface PropSchema {
   advanced?: boolean;
   /** 条件显示 */
   visibleWhen?: string;
-  /** 联动 */
- 联动?: Record<string, unknown>;
+  /** 联动配置 */
+  linkage?: Record<string, unknown>;
 }
 
 export interface ValidationRule {

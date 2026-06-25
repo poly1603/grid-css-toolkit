@@ -61,7 +61,7 @@ export function mergeDefaults(config: Partial<GridConfig>): GridConfig {
     columns: config.columns ?? 12,
     rows: config.rows ?? 0,
     cellHeight: config.cellHeight ?? 80,
-    gap: config.gap ?? 10,
+    gap: config.gap,  // 不设默认值，由 margin*2 推导
     margin: config.margin ?? 10,
     staticGrid: config.staticGrid ?? false,
     animate: config.animate ?? true,
@@ -135,12 +135,21 @@ export function resolveOverlaps(widgets: WidgetConfig[], columns: number): Widge
 
 /**
  * 生成 CSS Grid 容器样式
+ *
+ * GridStack ↔ CSS Grid 间距映射：
+ * - GridStack margin: 每个 item 四边都有 margin，相邻 item 间距 = margin * 2
+ * - CSS Grid gap: 相邻 track 间距 = gap
+ * - 所以 gap = margin * 2 才能保持视觉一致
+ * - margin 同时作为容器 padding（控制边缘间距）
  */
 export function generateContainerCSS(config: GridConfig, opts: ConverterOptions = { columns: 12 }): string {
   const cols = config.columns || opts.columns;
-  const gap = config.gap ?? 10;
+
+  // 间距映射：优先使用显式 gap，否则从 margin 推导（margin*2 = GridStack 实际间距）
   const margin = config.margin ?? 0;
-  const marginVal = Array.isArray(margin) ? `${margin[1]}px ${margin[0]}px` : `${margin}px`;
+  const marginNum = Array.isArray(margin) ? Math.max(margin[0], margin[1]) : margin;
+  const gap = config.gap ?? (marginNum * 2);
+  const padding = marginNum;
 
   const lines: string[] = [
     `display: grid;`,
@@ -162,8 +171,8 @@ export function generateContainerCSS(config: GridConfig, opts: ConverterOptions 
 
   lines.push(`gap: ${gap}px;`);
 
-  if (marginVal !== '0px') {
-    lines.push(`padding: ${marginVal};`);
+  if (padding > 0) {
+    lines.push(`padding: ${padding}px;`);
   }
 
   if (config.alignItems) lines.push(`align-items: ${config.alignItems};`);
@@ -298,9 +307,10 @@ export function toCSSGrid(config: GridConfig, opts: ConverterOptions = { columns
       if (!mediaQuery) continue;
 
       const bpCols = bp.columns;
-      const bpGap = bp.gap ?? merged.gap;
       const bpMargin = bp.margin ?? merged.margin;
-      const marginVal = Array.isArray(bpMargin) ? `${bpMargin[1]}px ${bpMargin[0]}px` : `${bpMargin}px`;
+      const bpMarginNum = Array.isArray(bpMargin) ? Math.max(bpMargin[0], bpMargin[1]) : bpMargin;
+      const bpGap = bp.gap ?? (bpMarginNum * 2);
+      const bpPadding = bpMarginNum;
       const cellH = bp.cellHeight ?? merged.cellHeight;
 
       stylesheet += `\n${mediaQuery} {\n`;
@@ -308,7 +318,7 @@ export function toCSSGrid(config: GridConfig, opts: ConverterOptions = { columns
       stylesheet += `    grid-template-columns: repeat(${bpCols}, 1fr);\n`;
       if (cellH > 0) stylesheet += `    grid-auto-rows: ${cellH}px;\n`;
       stylesheet += `    gap: ${bpGap}px;\n`;
-      if (marginVal !== '0px') stylesheet += `    padding: ${marginVal};\n`;
+      if (bpPadding > 0) stylesheet += `    padding: ${bpPadding}px;\n`;
       stylesheet += `  }\n}\n`;
     }
   }

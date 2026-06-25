@@ -2,7 +2,7 @@
  * Grid CSS Toolkit - Playground
  */
 
-import { Editor, Preview, templates, toCSSGrid, toJSON, toCSS, toHTML, toVue, toReact } from 'grid-css-toolkit';
+import { Editor, Preview, templates, toCSSGrid, toJSON, toCSS, toHTML, toVue, toReact, toTailwind, toAngular, toSvelte } from 'grid-css-toolkit';
 import 'gridstack/dist/gridstack.min.css';
 import 'grid-css-toolkit/style.css';
 import type { GridConfig } from 'grid-css-toolkit';
@@ -22,31 +22,36 @@ function initEditor(config?: Partial<GridConfig>) {
   preview?.destroy();
   preview = null;
 
-  editor = new Editor({
-    container: '#editor-container',
-    config: config ?? templates.dashboard(),
-    theme: 'dark',
-    showToolbar: true,
-    showPropertyPanel: true,
-    onChange: (cfg) => {
-      currentConfig = cfg;
-      updateStatusBar();
-    },
-    onSave: (cfg) => {
-      console.log('Saved:', cfg);
-      showNotification('布局已保存到 localStorage');
-    },
-  });
+  try {
+    editor = new Editor({
+      container: '#editor-container',
+      config: config ?? templates.dashboard(),
+      theme: 'dark',
+      showToolbar: true,
+      showPropertyPanel: true,
+      onChange: (cfg) => {
+        currentConfig = cfg;
+        updateStatusBar();
+      },
+      onSave: (cfg) => {
+        console.log('Saved:', cfg);
+        showNotification('布局已保存到 localStorage');
+      },
+    });
 
-  currentConfig = editor.getConfig();
-
-  // 加载已保存的布局
-  if (!config) {
-    editor.loadFromStorage();
     currentConfig = editor.getConfig();
-  }
 
-  updateStatusBar();
+    // 加载已保存的布局
+    if (!config) {
+      editor.loadFromStorage();
+      currentConfig = editor.getConfig();
+    }
+
+    updateStatusBar();
+  } catch (err) {
+    console.error('[Demo] Editor init failed:', err);
+    showNotification('编辑器初始化失败: ' + (err as Error).message);
+  }
 }
 
 // ─── Tab 切换 ──────────────────────────────────────────────
@@ -78,7 +83,6 @@ function refreshPreview() {
     responsive: true,
     animate: true,
     widgetRenderer: (w) => {
-      // 自定义渲染：带样式的卡片
       return `
         <div style="
           padding: 16px;
@@ -122,6 +126,15 @@ function refreshCode() {
       break;
     case 'react':
       code = toReact(cfg);
+      break;
+    case 'tailwind':
+      code = toTailwind(cfg);
+      break;
+    case 'angular':
+      code = toAngular(cfg);
+      break;
+    case 'svelte':
+      code = toSvelte(cfg);
       break;
   }
 
@@ -205,4 +218,26 @@ document.addEventListener('DOMContentLoaded', () => {
   initTabs();
   initCodeTabs();
   initTemplateButtons();
+  initCopyButton();
 });
+
+// ─── 复制按钮 ──────────────────────────────────────────────
+
+function initCopyButton() {
+  document.getElementById('btn-copy-code')?.addEventListener('click', () => {
+    const outputEl = document.getElementById('code-output');
+    if (!outputEl?.textContent) return;
+    navigator.clipboard.writeText(outputEl.textContent).then(() => {
+      const btn = document.getElementById('btn-copy-code');
+      btn?.classList.add('copied');
+      const original = btn?.innerHTML;
+      if (btn) btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> 已复制';
+      setTimeout(() => {
+        if (btn && original) {
+          btn.innerHTML = original;
+          btn.classList.remove('copied');
+        }
+      }, 1500);
+    });
+  });
+}

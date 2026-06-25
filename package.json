@@ -29,7 +29,7 @@
   ],
   "scripts": {
     "dev": "vite serve examples/demo --config examples/demo/vite.config.ts",
-    "build": "vite build --config vite.config.lib.ts && cp src/style.css dist/style.css",
+    "build": "vite build --config vite.config.lib.ts && node -e \"require('fs').copyFileSync('src/style.css','dist/style.css')\"",
     "build:watch": "vite build --config vite.config.lib.ts --watch",
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit",

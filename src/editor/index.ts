@@ -93,11 +93,15 @@ export class Editor {
     // 构建 DOM
     this.buildDOM();
 
-    // 初始化组件
-    this.initToolbar();
-    this.initPropertyPanel();
+    // 初始化组件 (按配置决定是否显示)
+    if (this.editorConfig.showToolbar !== false) {
+      this.initToolbar();
+      this.initWidgetLibrary();
+    }
+    if (this.editorConfig.showPropertyPanel !== false) {
+      this.initPropertyPanel();
+    }
     this.initGridStack();
-    this.initWidgetLibrary();
     this.initContextMenu();
     this.initAlignGuides();
     this.initZoom();
@@ -121,17 +125,20 @@ export class Editor {
     this.container.classList.add('gct-editor');
     if (this.editorConfig.theme === 'dark') this.container.classList.add('gct-editor--dark');
 
+    const showToolbar = this.editorConfig.showToolbar !== false;
+    const showPanel = this.editorConfig.showPropertyPanel !== false;
+
     this.container.innerHTML = `
-      <div class="gct-editor__toolbar-slot"></div>
+      ${showToolbar ? '<div class="gct-editor__toolbar-slot"></div>' : ''}
       <div class="gct-editor__body">
-        <div class="gct-editor__lib-slot"></div>
+        ${showToolbar ? '<div class="gct-editor__lib-slot"></div>' : ''}
         <div class="gct-editor__canvas">
           <div class="gct-grid-container">
             <div class="gct-grid-stack"></div>
             <div class="gct-grid-lines" style="display:none;"></div>
           </div>
         </div>
-        <div class="gct-editor__panel-slot"></div>
+        ${showPanel ? '<div class="gct-editor__panel-slot"></div>' : ''}
       </div>
     `;
 
@@ -200,9 +207,8 @@ export class Editor {
       gsWidget.id = id;
 
       const el = gsWidget.el as HTMLElement;
+      if (!el) continue;
       el.dataset.gctId = id;
-
-      this.buildWidgetContent(el, id);
 
       const rect: GridRect = {
         x: gsWidget.x ?? 0,
@@ -211,16 +217,25 @@ export class Editor {
         h: gsWidget.h ?? 1,
       };
 
-      const config: WidgetConfig = {
-        id,
-        rect,
-        content: '',
-        contentType: 'text',
-        visible: true,
-      };
+      // 先检查/创建 config 并注册到 widgets map（buildWidgetContent 需要读取）
+      let config = this.config.widgets.find((w) => w.id === id);
+      if (!config) {
+        config = {
+          id,
+          rect,
+          content: '',
+          contentType: 'text',
+          visible: true,
+        };
+        this.config.widgets.push(config);
+      } else {
+        config.rect = rect;
+      }
 
       this.widgets.set(id, { config, element: el });
-      this.config.widgets.push(config);
+
+      // 再构建 DOM（此时 buildWidgetContent 可以正确读取 config）
+      this.buildWidgetContent(el, id);
 
       this.emit('widget:add', { widget: config });
     }
@@ -261,6 +276,7 @@ export class Editor {
   private handleRemoved(items: GridStackWidget[]): void {
     for (const gsWidget of items) {
       const id = gsWidget.id as string;
+      if (!id) continue;
       this.widgets.delete(id);
       this.config.widgets = this.config.widgets.filter((w) => w.id !== id);
       if (this.selectedId === id) this.deselect();
@@ -270,7 +286,7 @@ export class Editor {
   }
 
   private handleDragStart(el: GridStackWidget): void {
-    const id = (el as any).id || (el.el as HTMLElement)?.dataset.gctId;
+    const id = this.extractWidgetId(el);
     if (id) {
       const w = this.widgets.get(id);
       if (w) this.emit('drag:start', { widget: w.config });
@@ -278,7 +294,7 @@ export class Editor {
   }
 
   private handleDragStop(el: GridStackWidget): void {
-    const id = (el as any).id || (el.el as HTMLElement)?.dataset.gctId;
+    const id = this.extractWidgetId(el);
     if (id) {
       const w = this.widgets.get(id);
       if (w) this.emit('drag:stop', { widget: w.config });
@@ -287,7 +303,7 @@ export class Editor {
   }
 
   private handleResizeStart(el: GridStackWidget): void {
-    const id = (el as any).id || (el.el as HTMLElement)?.dataset.gctId;
+    const id = this.extractWidgetId(el);
     if (id) {
       const w = this.widgets.get(id);
       if (w) this.emit('resize:start', { widget: w.config });
@@ -295,11 +311,20 @@ export class Editor {
   }
 
   private handleResizeStop(el: GridStackWidget): void {
-    const id = (el as any).id || (el.el as HTMLElement)?.dataset.gctId;
+    const id = this.extractWidgetId(el);
     if (id) {
       const w = this.widgets.get(id);
       if (w) this.emit('resize:stop', { widget: w.config });
     }
+  }
+
+  /** 从 GridStack 事件参数中提取 widget ID（兼容 HTMLElement 和 GridStackWidget） */
+  private extractWidgetId(el: GridStackWidget): string | null {
+    const node = el as any;
+    if (node.id) return node.id as string;
+    if (node.el) return (node.el as HTMLElement)?.dataset?.gctId ?? null;
+    if (node.dataset) return (node as HTMLElement).dataset?.gctId ?? null;
+    return null;
   }
 
   // ─── Widget 内容渲染 ─────────────────────────────────────
@@ -308,15 +333,44 @@ export class Editor {
     const internal = this.widgets.get(id);
     const config = internal?.config;
 
-    el.innerHTML = `
-      <div class="gct-widget__drag-handle"></div>
-      <div class="gct-widget__content">${config?.content ?? ''}</div>
-      <div class="gct-widget__resize-handle"></div>
-      <div class="gct-widget__actions">
-        <button class="gct-widget__btn" data-act="edit" title="编辑">${createIcon('edit', 12)}</button>
-        <button class="gct-widget__btn" data-act="delete" title="删除">${createIcon('trash-2', 12)}</button>
-      </div>
+    // 不要覆盖 el.innerHTML（会破坏 GridStack 的 grid-stack-item-content 和 resize handles）
+    // 找到 GridStack 创建的 content 容器，在里面插入我们的内容
+    let contentEl = el.querySelector('.grid-stack-item-content') as HTMLElement;
+    if (!contentEl) {
+      // 如果 GridStack 还没创建 content 容器，创建一个
+      contentEl = document.createElement('div');
+      contentEl.className = 'grid-stack-item-content';
+      el.appendChild(contentEl);
+    }
+
+    // 清空 content 容器中的旧 GCT 内容（保留 GridStack 的 resize handles）
+    contentEl.querySelectorAll('.gct-widget__drag-handle, .gct-widget__content, .gct-widget__resize-handle, .gct-widget__actions').forEach((n) => n.remove());
+
+    // 插入新的 GCT 内容
+    const dragHandle = document.createElement('div');
+    dragHandle.className = 'gct-widget__drag-handle';
+    contentEl.insertBefore(dragHandle, contentEl.firstChild);
+
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'gct-widget__content';
+    contentDiv.innerHTML = config?.content ?? '';
+    contentEl.appendChild(contentDiv);
+
+    const resizeHandle = document.createElement('div');
+    resizeHandle.className = 'gct-widget__resize-handle';
+    contentEl.appendChild(resizeHandle);
+
+    const actions = document.createElement('div');
+    actions.className = 'gct-widget__actions';
+    actions.innerHTML = `
+      <button class="gct-widget__btn" data-act="edit" title="编辑">${createIcon('edit', 12)}</button>
+      <button class="gct-widget__btn" data-act="delete" title="删除">${createIcon('trash-2', 12)}</button>
     `;
+    contentEl.appendChild(actions);
+
+    // 防止重复绑定事件监听器
+    if ((el as any)._gctBound) return;
+    (el as any)._gctBound = true;
 
     el.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -352,7 +406,10 @@ export class Editor {
       }
     }
     if (internal.config.className) {
-      internal.element.className = `grid-stack-item gct-widget ${internal.config.className}`;
+      const gsItem = internal.element.closest('.grid-stack-item') as HTMLElement;
+      if (gsItem) {
+        gsItem.className = `grid-stack-item gct-widget ${internal.config.className}`;
+      }
     }
   }
 
@@ -399,32 +456,48 @@ export class Editor {
 
   // ─── 选择 ────────────────────────────────────────────────
 
+  private _selecting = false;
+
   select(id: string, multi = false): void {
-    if (!multi) {
+    // 防止 Editor.select ↔ SelectionManager.select 无限循环
+    if (this._selecting) return;
+    this._selecting = true;
+
+    try {
+      if (!multi) {
+        if (this.selectedId) {
+          const old = this.widgets.get(this.selectedId);
+          old?.element.classList.remove('gct-widget--selected');
+        }
+      }
+
+      this.selectedId = id;
+      const internal = this.widgets.get(id);
+      if (internal) {
+        internal.element.classList.add('gct-widget--selected');
+        this.propertyPanel?.select(internal.config, this.config.columns);
+      }
+
+      this.selectionManager?.select(id, multi);
+    } finally {
+      this._selecting = false;
+    }
+  }
+
+  deselect(): void {
+    if (this._selecting) return;
+    this._selecting = true;
+    try {
       if (this.selectedId) {
         const old = this.widgets.get(this.selectedId);
         old?.element.classList.remove('gct-widget--selected');
       }
+      this.selectedId = null;
+      this.propertyPanel?.select(null, this.config.columns);
+      this.selectionManager?.deselect();
+    } finally {
+      this._selecting = false;
     }
-
-    this.selectedId = id;
-    const internal = this.widgets.get(id);
-    if (internal) {
-      internal.element.classList.add('gct-widget--selected');
-      this.propertyPanel.select(internal.config, this.config.columns);
-    }
-
-    this.selectionManager?.select(id, multi);
-  }
-
-  deselect(): void {
-    if (this.selectedId) {
-      const old = this.widgets.get(this.selectedId);
-      old?.element.classList.remove('gct-widget--selected');
-    }
-    this.selectedId = null;
-    this.propertyPanel.select(null, this.config.columns);
-    this.selectionManager?.deselect();
   }
 
   // ─── Widget 操作 ─────────────────────────────────────────
@@ -494,7 +567,7 @@ export class Editor {
     }
 
     if (this.selectedId === id) {
-      this.propertyPanel.select(internal.config, this.config.columns);
+      this.propertyPanel?.select(internal.config, this.config.columns);
     }
 
     this.emit('widget:change', { widget: internal.config, changes });
@@ -534,8 +607,13 @@ export class Editor {
     requestAnimationFrame(() => {
       const internal = this.widgets.get(id);
       if (internal) {
+        // 更新已有条目，不重复 push
         internal.config = config;
-        this.config.widgets.push(config);
+        // 同步更新 config.widgets 中的对应条目
+        const idx = this.config.widgets.findIndex((w) => w.id === id);
+        if (idx >= 0) {
+          this.config.widgets[idx] = config;
+        }
         this.refreshWidgetContent(id);
         if (config.locked) {
           this.grid.update(internal.element, { locked: true, noMove: true, noResize: true });
@@ -566,12 +644,21 @@ export class Editor {
     this.grid.cellHeight(this.config.cellHeight);
     this.grid.setStatic(this.config.staticGrid);
 
+    // 临时禁用历史记录，避免加载过程中产生大量无用快照
+    const origPush = this.pushHistory.bind(this);
+    this.pushHistory = () => {};
+
     for (const w of this.config.widgets) {
       this.addWidgetFromConfig(w);
     }
 
+    // 恢复历史记录功能，只推入一条最终状态
+    this.pushHistory = origPush;
+    this.pushHistory();
+
     this.emit('grid:load', { config: this.config });
     this.history.clear();
+    this.pushHistory();
   }
 
   getConfig(): GridConfig {
@@ -581,14 +668,14 @@ export class Editor {
   setColumns(cols: number): void {
     this.config.columns = cols;
     this.grid.column(cols);
-    this.toolbar.setColumns(cols);
+    this.toolbar?.setColumns(cols);
     this.pushHistory();
   }
 
   setStatic(isStatic: boolean): void {
     this.config.staticGrid = isStatic;
     this.grid.setStatic(isStatic);
-    this.toolbar.setStatic(isStatic);
+    this.toolbar?.setStatic(isStatic);
   }
 
   // ─── 预览 ────────────────────────────────────────────────
@@ -1018,8 +1105,8 @@ export class Editor {
       document.removeEventListener('keydown', (this as any)._keyHandler);
     }
     this.grid.destroy();
-    this.toolbar.destroy();
-    this.propertyPanel.destroy();
+    this.toolbar?.destroy();
+    this.propertyPanel?.destroy();
     this.widgetLibrary?.destroy();
     this.contextMenu?.destroy();
     this.alignGuides?.destroy();

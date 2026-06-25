@@ -185,6 +185,33 @@
       color: white;
       border-color: #4f8ff7;
     }
+    #code-container {
+      position: relative;
+    }
+    .code-copy-btn {
+      position: absolute;
+      top: 60px;
+      right: 32px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      background: #334155;
+      color: #e2e8f0;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      z-index: 10;
+    }
+    .code-copy-btn:hover {
+      background: #475569;
+    }
+    .code-copy-btn.copied {
+      background: #22c55e;
+      border-color: #22c55e;
+    }
 
     /* Icon styles */
     .icon {
@@ -295,8 +322,24 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             React
           </button>
+          <button class="code-tab" data-code="tailwind">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+            Tailwind
+          </button>
+          <button class="code-tab" data-code="angular">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            Angular
+          </button>
+          <button class="code-tab" data-code="svelte">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            Svelte
+          </button>
         </div>
         <pre id="code-output"></pre>
+        <button class="code-copy-btn" id="btn-copy-code" title="复制代码">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          复制
+        </button>
       </div>
     </div>
   </div>

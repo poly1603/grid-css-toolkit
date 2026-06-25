@@ -95,9 +95,17 @@ export interface GridConfig {
   rows: number;
   /** 单元格高度 (px, 0 = 自动) */
   cellHeight: number;
-  /** 间距 (px) */
-  gap: number;
-  /** 外边距 */
+  /**
+   * CSS Grid gap (px)
+   * 如果未设置，自动从 margin 推导：gap = margin * 2
+   * GridStack margin 在每个 item 四边，相邻 item 间距 = margin*2
+   */
+  gap?: number;
+  /**
+   * GridStack margin (px)
+   * 同时作为 CSS Grid 容器的 padding 和间距推导源
+   * 设置 margin 后 gap 自动 = margin * 2
+   */
   margin: number | [number, number];
   /** 固定行高模式 */
   staticGrid: boolean;

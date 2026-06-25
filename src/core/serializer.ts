@@ -118,7 +118,9 @@ export default ${name};`;
  */
 export function toTailwind(config: GridConfig): string {
   const cols = config.columns;
-  const gap = config.gap;
+  const margin = config.margin ?? 0;
+  const marginNum = Array.isArray(margin) ? Math.max(margin[0], margin[1]) : margin;
+  const gap = config.gap ?? (marginNum * 2);
   const gapMap: Record<number, string> = { 0: '0', 4: '1', 8: '2', 10: '2.5', 12: '3', 16: '4', 20: '5', 24: '6', 32: '8' };
   const gapClass = gapMap[gap] ?? `[${gap}px]`;
 
@@ -207,6 +209,9 @@ export function exportLayout(config: GridConfig, options: ExportOptions): string
     case 'html': return toHTML(config);
     case 'vue': return toVue(config);
     case 'react': return toReact(config);
+    case 'angular': return toAngular(config);
+    case 'svelte': return toSvelte(config);
+    case 'tailwind': return toTailwind(config);
     default: return toJSON(config);
   }
 }
@@ -240,8 +245,7 @@ export const templates = {
       columns: 12,
       rows: 0,
       cellHeight: 80,
-      gap: 10,
-      margin: 10,
+      margin: 10,  // gap 自动 = margin*2 = 20px（匹配 GridStack 间距）
       staticGrid: false,
       animate: true,
       widgets: [
@@ -261,7 +265,6 @@ export const templates = {
       columns: 12,
       rows: 0,
       cellHeight: 60,
-      gap: 0,
       margin: 0,
       staticGrid: false,
       animate: true,
@@ -279,8 +282,7 @@ export const templates = {
       columns: 4,
       rows: 0,
       cellHeight: 200,
-      gap: 16,
-      margin: 16,
+      margin: 16,  // gap 自动 = margin*2 = 32px
       staticGrid: false,
       animate: true,
       widgets: Array.from({ length: 8 }, (_, i) => ({
